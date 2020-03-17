@@ -20,4 +20,8 @@ struct EventItem: Identifiable, Equatable, Decodable{
     static func == (lhs: EventItem, rhs: EventItem) -> Bool {
         return lhs.id == rhs.id
     }
+    
+    func containsTag(_ tag: String) -> Bool{
+        return tags.contains(tag)
+    }
 }

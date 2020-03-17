@@ -13,8 +13,16 @@ class Tags: ObservableObject{
         }
     }
     
+    func hasFilter() -> Bool{
+        return selectedFilter != 0
+    }
+    
     func getTag(_ index: Int) -> String {
         return index >= items.count ? "" : items[index]
+    }
+    
+    func getFilter() -> String{
+        return getTag(selectedFilter)
     }
     
     func getColor(_ tag: String) -> Color {

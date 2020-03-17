@@ -18,14 +18,16 @@ struct SortView: View{
 
     var body: some View{
         print("Loading SortView")
-        events.updateSorter(selectedSort,selectedOrder)
+        events.update(selectedSort,selectedOrder, selectedFilter)
 
         return VStack{
+            createTitle()
             createForm()
                 .padding()
             createTagGrid(tags.items, columns: 3)
-                .padding()
+                .padding(5)
             createExitButton()
+                .padding()
         }
 //    .padding()
     }
@@ -40,6 +42,12 @@ struct SortView: View{
             .fill(Color.white)
             .opacity(0.6)
         )
+    }
+    
+    func createTitle() -> some View{
+        Text("Options")
+//            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .center)
+        .font(.title)
     }
     
     func createSortPicker() -> some View{

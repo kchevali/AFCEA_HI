@@ -14,7 +14,7 @@ class Events: ObservableObject{
         for item in events{
             addItem(item)
         }
-        sortItems()
+        updateItems()
     }
     
     private func addItemPrivate(_ item: EventItem){
@@ -26,26 +26,42 @@ class Events: ObservableObject{
     
     func addItem(_ item: EventItem){
         addItemPrivate(item)
-        sortItems()
+        updateItems()
     }
     
-    func updateSorter(_ sort: Int, _ order: Int){
+    func update(_ sort: Int, _ order: Int, _ filter: Int){
         sorter.selectedSort = sort
         sorter.selectedOrder = order
-        sortItems()
+        tags.selectedFilter = filter
+        updateItems()
     }
     
-    func sortItems(){
+    
+    func updateItems(){
+        var filteredItems : [EventItem] = []
+        //filter
+        if(!tags.hasFilter()){
+            filteredItems = allItems
+        }else{
+            let tag = tags.getFilter()
+            for item in allItems{
+                if item.containsTag(tag){
+                    filteredItems.append(item)
+                }
+            }
+        }
+        
+        //sort
         let isAscending = sorter.selectedOrder == 0
         switch sorter.getSort() {
             case "date":
-                 items = allItems.sorted(by: { ($0.date < $1.date) != isAscending})
+                 items = filteredItems.sorted(by: { ($0.date < $1.date) != isAscending})
                 break
             case "title":
-                items = allItems.sorted(by: {  ($0.title > $1.title) != isAscending })
+                items = filteredItems.sorted(by: {  ($0.title > $1.title) != isAscending })
                 break
             default:
-                items = allItems.sorted(by: { ($0.title > $1.title) || isAscending})
+                items = filteredItems.sorted(by: { ($0.title > $1.title) || isAscending})
         }
     }
 }
