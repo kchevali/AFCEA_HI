@@ -11,4 +11,8 @@ class Boolean: ObservableObject{
     func set(_ value: Bool){
         self.value = value
     }
+    
+    func toggle(){
+        self.value.toggle()
+    }
 }

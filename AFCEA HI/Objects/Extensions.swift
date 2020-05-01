@@ -80,9 +80,48 @@ extension View {
     func isHidden(_ hidden: Bool) -> some View {
         modifier(HiddenModifier(isHidden: hidden))
     }
+    
+    func isBlur(_ blur: Bool) -> some View{
+        modifier(BlurAnimation(isBlur: blur))
+    }
+    
+    func gradientBackground() -> some View{
+        LinearGradient(gradient:
+            Gradient(colors: [Color("Dark"), Color("MedDark")]), startPoint: .top, endPoint: .bottom)
+        .edgesIgnoringSafeArea(.all)
+    }
+    
+    func wrapRoundRectangle(stroke: Color, fill: Color) -> some View{
+        modifier(RoundRectangleModifier(stroke: stroke, fill: fill))
+    }
+    
+    func fitImage(_ image: Image) -> some View{
+        image
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+    }
+    func plainButtonStyle() -> some View{
+        modifier(PlainButtonModifier())
+    }
+    
+    func plainTextStyle() -> some View{
+        modifier(PlainTextModifier())
+    }
+    
+    func grayOut(_ isGrayOut: Bool) -> some View{
+        modifier(GrayModifier(isGrayOut))
+    }
+    
+    func fontSize(_ font: Int) -> some View{
+        modifier(FontModifier(font))
+    }
+    
+    func horizontalCenter() -> some View{
+        modifier(CenterModifier())
+    }
 }
 
-fileprivate struct HiddenModifier: ViewModifier {
+struct HiddenModifier: ViewModifier {
 
     private let isHidden: Bool
 
@@ -91,12 +130,110 @@ fileprivate struct HiddenModifier: ViewModifier {
     }
 
     func body(content: Content) -> some View {
-        Group {
-            if isHidden {
-                content.hidden()
-            } else {
-                content
-            }
+        content
+        .offset(x: 0, y: isHidden ? 1000 : 0)
+//        .frame(width: isHidden ? 0 : 350)
+    }
+}
+
+struct GrayModifier: ViewModifier {
+
+    private let isGrayOut: Bool
+
+    init(_ isGrayOut: Bool) {
+        self.isGrayOut = isGrayOut
+    }
+
+    func body(content: Content) -> some View {
+        content.colorMultiply(isGrayOut ? Color.gray : Color.white)
+    }
+}
+
+struct BlurAnimation: ViewModifier {
+
+    private let isBlur: Bool
+
+    init(isBlur: Bool) {
+        self.isBlur = isBlur
+    }
+
+    func body(content: Content) -> some View {
+
+        content
+        .animation(nil)
+        .colorMultiply(isBlur ? .gray: .white)
+        .blur(radius:isBlur ? 20 : 0)
+        .animation(.default)
+    }
+}
+
+struct RoundRectangleModifier: ViewModifier {
+    
+    private let stroke: Color
+    private let fill: Color
+
+    init(stroke: Color, fill: Color) {
+        self.stroke = stroke
+        self.fill = fill
+    }
+
+    func body(content: Content) -> some View {
+
+        content
+        .padding(3)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                .stroke(stroke, lineWidth: 4)
+            )
+            .foregroundColor(fill)
+        )
+    }
+}
+
+struct PlainButtonModifier: ViewModifier {
+    
+    func body(content: Content) -> some View {
+
+        content
+        .buttonStyle(PlainButtonStyle())
+        .colorMultiply(.secondary)
+        .padding()
+    }
+}
+
+struct  PlainTextModifier: ViewModifier {
+    
+    func body(content: Content) -> some View {
+
+        content
+            .foregroundColor(Color.black)
+            .multilineTextAlignment(.center)
+//            .padding(10.0)
+    }
+}
+
+struct FontModifier: ViewModifier {
+    
+    private let font: CGFloat
+
+    init(_ font : Int) {
+        self.font = CGFloat(font)
+    }
+
+    func body(content: Content) -> some View {
+        content.font(.system(size: font))
+    }
+}
+
+struct CenterModifier: ViewModifier {
+
+    func body(content: Content) -> some View {
+        HStack {
+            Spacer()
+            content
+            Spacer()
         }
     }
 }

@@ -4,6 +4,7 @@ import SwiftUI
 class Events: ObservableObject{
     @Published var items = [EventItem]()
     private var allItems = [EventItem]()
+    private var itemDict = [String: EventItem]()
     var tags = Tags()
     let sorter = Sorter( [
         SortType(name: "date", orders: ["Recent", "Oldest"]),
@@ -22,11 +23,16 @@ class Events: ObservableObject{
             tags.add(tag)
         }
         allItems.insert(item, at:0)
+        itemDict[item.id] = item
     }
     
     func addItem(_ item: EventItem){
         addItemPrivate(item)
         updateItems()
+    }
+    
+    func getItem(_ id: String) -> EventItem?{
+        return itemDict[id]
     }
     
     func update(_ sort: Int, _ order: Int, _ filter: Int){

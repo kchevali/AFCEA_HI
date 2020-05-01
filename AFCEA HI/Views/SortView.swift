@@ -9,12 +9,16 @@
 import SwiftUI
 
 struct SortView: View{
+    
+    var events: Events
+    @ObservedObject var tags: Tags
+    @ObservedObject var showSort: Boolean
+    
+    
     @State var selectedSort = 0
     @State var selectedOrder = 0
     @State var selectedFilter = 0
-    @ObservedObject var tags: Tags
-    var events: Events
-    var showSort: Boolean
+    
 
     var body: some View{
         print("Loading SortView")
@@ -38,16 +42,13 @@ struct SortView: View{
             createOrderPicker()
         }
         .clipShape(RoundedRectangle(cornerRadius: 20))
-        .background(RoundedRectangle(cornerRadius: 15)
-            .fill(Color.white)
-            .opacity(0.6)
-        )
+        .wrapRoundRectangle(stroke: Color.white, fill: Color.gray)
     }
     
     func createTitle() -> some View{
         Text("Options")
-//            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .center)
-        .font(.title)
+            .font(.title)
+            .wrapRoundRectangle(stroke: Color.white, fill: Color.gray)
     }
     
     func createSortPicker() -> some View{
@@ -78,8 +79,8 @@ struct SortView: View{
         var div = CGFloat(tags.count) / CGFloat(columns)
         div.round(.up)
         let rows = Int(div)
-//        print("Tag Count: \(tags.count)")
-//        print("Grid: \(rows) x \(columns)")
+        print("Tag Count: \(tags.count)")
+        print("Grid: \(rows) x \(columns)")
         
         return GridStack(rows: rows, columns: columns) { row, col in
             self.createTag(tags, col + columns*row)
@@ -89,23 +90,29 @@ struct SortView: View{
     func createTag(_ tags: [String], _ index: Int) -> some View{
         let isHidden = index >= tags.count
         let tag = isHidden ? "" : tags[index]
-        let text = Text(tag.count == 0 ? "All" :tag)
-            .foregroundColor(Color.black)
-            .multilineTextAlignment(.center)
-            .font(.system(size: 20))
-            .padding(10.0)
+        print("Creating Tag: '\(tag)'")
+        let isSelected = selectedFilter == index
         
         return Button(action:{
             self.selectedFilter = index
         }){
-            text.background(
-                RoundedRectangle(cornerRadius: 15)
-                    .fill(self.tags.getColor(tag))
-                    .colorMultiply(self.selectedFilter == index ? Color.white : Color.gray)
-            )
+            Text(tag.count == 0 ? "All" : tag)
+                .fontSize(20)
+                .plainTextStyle()
+                .padding(5)
+                .wrapRoundRectangle(stroke: isSelected ? Color.white : Color.gray, fill: self.tags.getColor(tag))
+                .grayOut(!isSelected)
+            
+                
         }
         .padding(5)
-        .opacity(isHidden ? 0 : 1)
+        .animation(nil)
+        .isHidden(!showSort.value)
+        .animation(
+            Animation.easeInOut(duration: 2)
+                .delay(10)
+        )
+//        .isHidden(isHidden)
 
     }
     
@@ -114,10 +121,9 @@ struct SortView: View{
             self.showSort.set(false)
         }){
             Image(systemName:"xmark.circle.fill")
-            .resizable()
-            .frame(width:50,height:50)
+            .imageScale(.large)
 
         }
-        .buttonStyle(PlainButtonStyle())
+        .plainButtonStyle()
     }
 }
